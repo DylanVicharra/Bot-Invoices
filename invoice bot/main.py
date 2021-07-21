@@ -2,7 +2,7 @@ import os
 import webdriver as bot
 import manejo_datos as md
 import invoice as inv
-from selenium.common.exceptions import TimeoutException, NoSuchWindowException, SessionNotCreatedException
+from selenium.common.exceptions import TimeoutException, NoSuchWindowException, SessionNotCreatedException, WebDriverException
 
 def secuencia_invoices(ejecutableChrome, carpeta_descarga, orden, tiempo_espera):
 
@@ -18,14 +18,22 @@ def secuencia_invoices(ejecutableChrome, carpeta_descarga, orden, tiempo_espera)
     for funcion in funciones_invoices:
         try:
             funcion(*funciones_invoices[funcion])
-        except NoSuchWindowException:
+        except (NoSuchWindowException, WebDriverException):
             print("Ocurrio un error con la ventana del navegador.")
             print(f'No se pudo descargar la factura de la orden {orden.orden["nombre"]}')
+            orden.estado = False 
             break    
         except TimeoutException:
             print('Se demoro en encontrar el boton o texto.')   
             print(f'No se pudo descargar la factura de la orden {orden.orden["nombre"]}')  
+            orden.estado = False
             break
+        except Exception as ex:
+            error_message = '\n'.join(map(str, ex.args)).rstrip()
+            print(f"{error_message}")
+            print(f'No se pudo descargar la factura de la orden {orden.orden["nombre"]}')
+            orden.estado = False 
+            break    
 
     driver.quit()
 
@@ -39,6 +47,11 @@ def main():
     archivo_excel = 'BOT - INVOICES APPLE'.rstrip()
     # Tiempo maximo de espera 
     tiempo_espera = 8
+    # Variable de errores
+    errores = []
+
+    # Elimina el anterior log
+    md.eliminar_archivo_texto()
 
     print("Verificacion de las carpetas download, excel e invoice bot")
     md.verificacion_carpetas()
@@ -66,6 +79,10 @@ def main():
     for orden in lista_orden:
         
         secuencia_invoices(ejecutableChrome, carpeta_descarga, orden, tiempo_espera)
+
+        #Si hay un error lo guarda y despues lo escribe en un txt 
+        if not orden.estado:
+            md.escribir_texto(orden.orden)
      
     print("Finalizando BOT - INVOICES APPLE...")
 

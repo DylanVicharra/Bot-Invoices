@@ -1,6 +1,6 @@
-from os import path, mkdir
+from os import path, mkdir, remove 
 from pathlib import Path
-from datetime import date
+from datetime import date, datetime
 from orden import Orden
 import openpyxl as op
 
@@ -30,15 +30,36 @@ def verificacion_carpetas():
         print("Carpetas creadas")
 
 def crear_carpeta():
-    if path.exists(f'{dowload_path}\\invoices-{date.today()}'):
-        print(f'Se encontro la carpeta .\invoices-{date.today()} en la carpeta .\download')
+    
+    secuencia = 1
+    condicion = False
+
+    if not path.exists(f'{dowload_path}\\invoices-{date.today()}'):
+        print(f'Se creo la carpeta .\invoices-{date.today()} en la carpeta .\download')
+        mkdir(f'{dowload_path}\\invoices-{date.today()}')
         ruta = f'{dowload_path}\\invoices-{date.today()}'
         return ruta
     else: 
-        print(f'No se encontro la carpeta .\invoices-{date.today()} en la carpeta .\download. Se creara')
-        mkdir(f'{dowload_path}\\invoices-{date.today()}')
-        nueva_ruta = f'{dowload_path}\\invoices-{date.today()}'
-        return nueva_ruta
+        while (condicion == False):
+            if not path.exists(f'{dowload_path}\\invoices-{date.today()}-{secuencia}'):
+                print(f'Se creo la carpeta .\invoices-{date.today()}-{secuencia} en la carpeta .\download.')
+                mkdir(f'{dowload_path}\\invoices-{date.today()}-{secuencia}')
+                nueva_ruta = f'{dowload_path}\\invoices-{date.today()}-{secuencia}'
+                condicion = True
+                return nueva_ruta
+            else: 
+                secuencia += 1
+    
+def escribir_texto(orden):
+    if path.exists(f'{src_path.parent}\\log.txt') == False:
+        with open(f'{src_path.parent}\\log.txt', 'w') as error:
+            error.write(f'*{datetime.today()} ---- Ha ocurrido un error con la orden {orden["nombre"]}' + "\n")
+    else: 
+        with open(f'{src_path.parent}\\log.txt', 'a') as error:
+            error.write(f'*{datetime.today()} ---- Ha ocurrido un error con la orden {orden["nombre"]}' + "\n")
+
+def eliminar_archivo_texto():
+    remove(f'{src_path.parent}\\log.txt')
 
 def obtencion_columnas(archivo_excel):
     

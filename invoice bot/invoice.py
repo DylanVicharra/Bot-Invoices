@@ -71,4 +71,6 @@ def seleccion_invoice(driver, orden, tiempo_espera):
 
     driver.close()
 
+    orden.estado = True
+
     print(f'{orden.orden["nombre"]}-invoice duplicate.pdf. Descargado')
