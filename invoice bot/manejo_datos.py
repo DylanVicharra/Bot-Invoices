@@ -59,7 +59,8 @@ def escribir_texto(orden):
             error.write(f'*{datetime.today()} ---- Ha ocurrido un error con la orden {orden["nombre"]}' + "\n")
 
 def eliminar_archivo_texto():
-    remove(f'{src_path.parent}\\log.txt')
+    if path.exists(f'{src_path.parent}\\log.txt'):
+        remove(f'{src_path.parent}\\log.txt')
 
 def obtencion_columnas(archivo_excel):
     
@@ -95,5 +96,3 @@ def lectura_lista_orden(nombre_archivo):
             pass
 
     return invoices
-
-
