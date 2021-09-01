@@ -4,6 +4,7 @@ from selenium.common.exceptions import TimeoutException, WebDriverException, NoS
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+import serials as serial
 
 
 def pagina_orden(driver, orden, tiempo_espera):
@@ -52,6 +53,7 @@ def seleccion_invoice(driver, orden, tiempo_espera):
 
     WebDriverWait(driver, tiempo_espera).until(EC.title_is("Order Details - Apple"))
 
+    
     WebDriverWait(driver, tiempo_espera).until(EC.visibility_of_element_located((By.XPATH, '//a[@data-metkey="viewinvoice"][@class="icon icon-after more"]')))
     driver.execute_script("arguments[0].click();", driver.find_element_by_xpath('//a[@data-metkey="viewinvoice"][@class="icon icon-after more"]'))
 
@@ -63,7 +65,10 @@ def seleccion_invoice(driver, orden, tiempo_espera):
         if window_handle != original_window:
             driver.switch_to.window(window_handle)
             break
-        
+    
+    # Se obtiene informacion de la init_data de la pagina
+    serial.info_serial(driver,orden)
+
     driver.execute_script('document.title="{}";'.format(f'{orden.orden["nombre"]}-invoice duplicate'))
 
     WebDriverWait(driver, tiempo_espera).until(EC.visibility_of_element_located((By.XPATH, '//button[@type="button"][@class="button rs-invoice-print"]')))

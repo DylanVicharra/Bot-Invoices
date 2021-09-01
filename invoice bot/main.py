@@ -67,6 +67,10 @@ def main():
     print("Verificando la existencia de la carpeta de descarga")
     carpeta_descarga = md.crear_carpeta()
 
+    # Creo un archivo excel donde guardar los serials
+    nombre_archivo_serial = "Serials"
+    archivo_serial = md.crear_archivo(nombre_archivo_serial)
+
     print(f"Lectura del archivo {archivo_excel}.xlsx")
     try: 
         md.existe_archivo_excel(archivo_excel)
@@ -83,7 +87,13 @@ def main():
         #Si hay un error lo guarda y despues lo escribe en un txt 
         if not orden.estado:
             md.escribir_texto(orden.orden)
+        else: 
+            for producto in orden.serials:
+                md.escribir_fila_excel(archivo_serial,"Serials",orden.orden, orden.email, producto["nombre_producto"], producto["lista_serials"])
      
+
+    md.guardar_archivo_excel(archivo_serial, nombre_archivo_serial)
+    
     print("Finalizando BOT - INVOICES APPLE...")
 
 

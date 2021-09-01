@@ -4,4 +4,5 @@ class Orden:
         self.email = email
         self.password = password
         self.orden = orden
+        self.serials = []
         self.estado = None
