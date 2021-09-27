@@ -79,20 +79,31 @@ def main():
         exit(1)
         
     lista_orden = md.lectura_lista_orden(archivo_excel)
+    
+    if lista_orden:
 
-    for orden in lista_orden:
+        # Leo la lista de ordenes
+        for orden in lista_orden:
+            
+            secuencia_invoices(ejecutableChrome, carpeta_descarga, orden, tiempo_espera)
+
+            #Si hay un error lo guarda y despues lo escribe en un txt 
+            if not orden.estado:
+                md.escribir_texto(orden.orden)
+            else: 
+                # Secuencia de guardado de serial dentro del archivo anterior creado
+                for producto in orden.serials:
+                    md.escribir_fila_excel(archivo_serial,"Serials",orden.orden, orden.email, producto["nombre_producto"], producto["lista_serials"])
+
+        # Guardo la informacion de los serial
+        md.guardar_archivo_excel(archivo_serial, nombre_archivo_serial)
+        # Finalizo la sesion de los excels usados
+        archivo_serial.close()
         
-        secuencia_invoices(ejecutableChrome, carpeta_descarga, orden, tiempo_espera)
-
-        #Si hay un error lo guarda y despues lo escribe en un txt 
-        if not orden.estado:
-            md.escribir_texto(orden.orden)
-        else: 
-            for producto in orden.serials:
-                md.escribir_fila_excel(archivo_serial,"Serials",orden.orden, orden.email, producto["nombre_producto"], producto["lista_serials"])
-     
-
-    md.guardar_archivo_excel(archivo_serial, nombre_archivo_serial)
+    else:
+        print(f'El archivo {archivo_excel}.xlsx esta vacio. Ingresar datos al archivo.')
+        # Finalizo la sesion de los excels usados
+        archivo_serial.close()
     
     print("Finalizando BOT - INVOICES APPLE...")
 

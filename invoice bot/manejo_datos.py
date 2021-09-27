@@ -4,7 +4,6 @@ from datetime import date, datetime
 from orden import Orden
 import openpyxl as op
 
-
 src_path = Path(__file__).parent
 dowload_path = src_path.parent / 'download'
 excel_path = src_path.parent / 'excel'
@@ -73,13 +72,13 @@ def obtencion_columnas(archivo_excel):
                 nr_columnas[cabecera]=columna
 
     return nr_columnas
-    
+
 
 def lectura_lista_orden(nombre_archivo):
     
     # Abro un archivo leo su hoja principal
-    lista_invoice = op.load_workbook(f'{excel_path}\\{nombre_archivo}.xlsx')
-    lista_invoice = lista_invoice.active
+    archivo_lista_invoice = op.load_workbook(f'{excel_path}\\{nombre_archivo}.xlsx')
+    lista_invoice = archivo_lista_invoice.active
 
     columnas = obtencion_columnas(lista_invoice)
 
@@ -94,13 +93,15 @@ def lectura_lista_orden(nombre_archivo):
 
         except Exception as ex:
             pass
+    
+    archivo_lista_invoice.close()
 
     return invoices
 
 # Serials
 
 def guardar_archivo_excel(archivo, nombre_archivo):
-    # Ultimo paso coloco cabeceras, y modifica tamaño de celdas
+    # Ultimo paso coloco cabeceras a las columnas, y modifica tamaño de celdas
     hoja = archivo.active
 
     hoja.cell(row = 1, column = 1).value = "Nº ORDEN"
