@@ -1,4 +1,5 @@
 
+from time import sleep
 from selenium.webdriver.support import expected_conditions as EC 
 from selenium.common.exceptions import TimeoutException, WebDriverException, NoSuchWindowException
 from selenium.webdriver.support.ui import WebDriverWait
@@ -54,8 +55,8 @@ def seleccion_invoice(driver, orden, tiempo_espera):
     WebDriverWait(driver, tiempo_espera).until(EC.title_is("Order Details - Apple"))
 
     
-    WebDriverWait(driver, tiempo_espera).until(EC.visibility_of_element_located((By.XPATH, '//a[@data-metkey="viewinvoice"][@class="icon icon-after more"]')))
-    driver.execute_script("arguments[0].click();", driver.find_element_by_xpath('//a[@data-metkey="viewinvoice"][@class="icon icon-after more"]'))
+    WebDriverWait(driver, tiempo_espera).until(EC.visibility_of_element_located((By.XPATH, '//a[@class="icon icon-after more"][text()="View invoice"]')))
+    driver.execute_script("arguments[0].click();", driver.find_element_by_xpath('//a[@class="icon icon-after more"][text()="View invoice"]'))
 
     original_window = driver.current_window_handle
 
@@ -73,6 +74,9 @@ def seleccion_invoice(driver, orden, tiempo_espera):
 
     WebDriverWait(driver, tiempo_espera).until(EC.visibility_of_element_located((By.XPATH, '//button[@type="button"][@class="button rs-invoice-print"]')))
     driver.execute_script("arguments[0].click();", driver.find_element_by_xpath('//button[@type="button"][@class="button rs-invoice-print"]'))
+
+    # Deja un tiempo para que se descargue el archivo
+    sleep(5)
 
     driver.close()
 

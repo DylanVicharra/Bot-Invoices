@@ -4,6 +4,7 @@ import manejo_datos as md
 import invoice as inv
 from selenium.common.exceptions import TimeoutException, NoSuchWindowException, SessionNotCreatedException, WebDriverException
 
+
 def secuencia_invoices(ejecutableChrome, carpeta_descarga, orden, tiempo_espera):
 
     try:
@@ -68,8 +69,8 @@ def main():
     carpeta_descarga = md.crear_carpeta()
 
     # Creo un archivo excel donde guardar los serials
-    nombre_archivo_serial = "Serials"
-    archivo_serial = md.crear_archivo(nombre_archivo_serial)
+    nombre_archivo = "Informacion"
+    archivo_general = md.crear_archivo(nombre_archivo)
 
     print(f"Lectura del archivo {archivo_excel}.xlsx")
     try: 
@@ -92,19 +93,23 @@ def main():
                 md.escribir_texto(orden.orden)
             else: 
                 # Secuencia de guardado de serial dentro del archivo anterior creado
+                md.escribir_informacion(archivo_general, "Informacion", orden.orden, orden.email, orden.informacion["order_date"],orden.informacion["invoice_date"], orden.informacion["credit_card"], orden.informacion["number_card"], orden.informacion["total"])
                 for producto in orden.serials:
-                    md.escribir_fila_excel(archivo_serial,"Serials",orden.orden, orden.email, producto["nombre_producto"], producto["lista_serials"])
+                    md.escribir_serial(archivo_general,"Serials",orden.orden,  producto["nombre_producto"], producto["lista_serials"])
 
         # Guardo la informacion de los serial
-        md.guardar_archivo_excel(archivo_serial, nombre_archivo_serial)
+        md.guardar_archivo_excel(archivo_general, nombre_archivo)
         # Finalizo la sesion de los excels usados
-        archivo_serial.close()
+        archivo_general.close()
         
     else:
         print(f'El archivo {archivo_excel}.xlsx esta vacio. Ingresar datos al archivo.')
         # Finalizo la sesion de los excels usados
-        archivo_serial.close()
+        archivo_general.close()
     
+    if md.existe_archivo_txt("log"):
+        print("Ha ocurrido errores al descargar ciertos invoices. Se detallan en el archivo 'log.txt'")
+
     print("Finalizando BOT - INVOICES APPLE...")
 
 

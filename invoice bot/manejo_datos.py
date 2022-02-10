@@ -11,6 +11,12 @@ bot_path = src_path.parent / 'invoice bot'
 
 
 # Verifica si existe el archivo excel 
+def existe_archivo_txt(nombre_archivo):
+    if path.exists(f'{src_path.parent}\\{nombre_archivo}.txt'):
+        return True
+    else:
+        return False
+
 def existe_archivo_excel(nombre_archivo):
     if path.exists(f'{excel_path}\\{nombre_archivo}.xlsx'):
         return True
@@ -102,20 +108,29 @@ def lectura_lista_orden(nombre_archivo):
 
 def guardar_archivo_excel(archivo, nombre_archivo):
     # Ultimo paso coloco cabeceras a las columnas, y modifica tamaño de celdas
-    hoja = archivo.active
+    informacion = archivo.get_sheet_by_name('Informacion')
+    informacion.cell(row = 1, column = 1).value = "Nº ORDEN"
+    informacion.cell(row = 1, column = 2).value = "USUARIO"
+    informacion.cell(row = 1, column = 3).value = "ORDER DATE"
+    informacion.cell(row = 1, column = 4).value = "INVOICE DATE"
+    informacion.cell(row = 1, column = 5).value = "TARJETA"
+    informacion.cell(row = 1, column = 6).value = "Nº TARJETA"
+    informacion.cell(row = 1, column = 7).value = "TOTAL"
+
+    hoja = archivo.get_sheet_by_name('Serials')
 
     hoja.cell(row = 1, column = 1).value = "Nº ORDEN"
-    hoja.cell(row = 1, column = 2).value = "USUARIO"
-    hoja.cell(row = 1, column = 3).value = "MODELO"
+    hoja.cell(row = 1, column = 2).value = "MODELO"
 
     numero_serial = 1
 
-    for columna in range(4, hoja.max_column + 1):     
+    for columna in range(3, hoja.max_column + 1):     
         hoja.cell(row = 1, column = columna).value = f'SERIAL {numero_serial}'
         hoja.column_dimensions[op.utils.get_column_letter(columna)].width = 20
         numero_serial+=1
     
     archivo.save(f'{excel_path}\\{date.today()}-{nombre_archivo}.xlsx')
+
 
 
 def informacion_repetida(archivo_a_leer, hoja, primer_dato_lista):
@@ -137,16 +152,28 @@ def crear_archivo(nombre_archivo):
         # Se crea un nuevo archivo 
         archivo = op.Workbook()
         # Se renombra la primera hoja
-        archivo.worksheets[0].title = "Serials"
+        archivo.worksheets[0].title = "Informacion"
         # Me muevo a la hoja
-        hoja = archivo.get_sheet_by_name("Serials")
+        informacion = archivo.get_sheet_by_name("Informacion")
         # Tamaños predeterminados dados
-        hoja.column_dimensions['A'].width = 25
-        hoja.column_dimensions['B'].width = 40
-        hoja.column_dimensions['C'].width = 40
+        informacion.column_dimensions['A'].width = 30
+        informacion.column_dimensions['B'].width = 40
+        informacion.column_dimensions['C'].width = 40
+        informacion.column_dimensions['D'].width = 35
+        informacion.column_dimensions['E'].width = 35
+        informacion.column_dimensions['F'].width = 35
+        informacion.column_dimensions['G'].width = 20
+        # Creo nueva hoja 
+        archivo.create_sheet('Serials')
+        # Me muevo a la nueva hoja
+        serial = archivo.get_sheet_by_name("Serials")
+        serial.column_dimensions['A'].width = 30
+        serial.column_dimensions['B'].width = 40
+        serial.column_dimensions['C'].width = 40
+        
         return archivo
 
-def escribir_fila_excel(archivo_a_modificar, hoja, orden, email_usuario, nombre_producto, serials):
+def escribir_serial(archivo_a_modificar, hoja, orden, nombre_producto, serials):
 
     if informacion_repetida(archivo_a_modificar, hoja, serials[0]):
         #Busco la hoja donde tengo que modificar 
@@ -158,14 +185,36 @@ def escribir_fila_excel(archivo_a_modificar, hoja, orden, email_usuario, nombre_
         hoja_a_modificar.cell(row = ultima_fila+1, column = 1).value = orden["nombre"]
         hoja_a_modificar.cell(row = ultima_fila+1, column = 1).style = 'Hyperlink'
         #hoja_a_modificar.cell(row = ultima_fila+1, column = 1).font = Font(underline='single')
-        #Escribo en la columna dos que es el email del usuario:
-        hoja_a_modificar.cell(row = ultima_fila+1, column = 2).value = email_usuario
         #Escribo en la columna tres que es el nombre del comprado:
-        hoja_a_modificar.cell(row = ultima_fila+1, column = 3).value = nombre_producto
+        hoja_a_modificar.cell(row = ultima_fila+1, column = 2).value = nombre_producto
         
         #En las columnas siguientes se escribira los serials:
-        columna_comienzo = 4
+        columna_comienzo = 3
         
         for serial in serials:
             hoja_a_modificar.cell(row = ultima_fila+1, column = columna_comienzo).value = serial
             columna_comienzo +=1
+
+def escribir_informacion(archivo_a_modificar, hoja, orden, user, order_date, invoice_date, credit_card, number_card, total):
+
+    hoja_a_modificar = archivo_a_modificar.get_sheet_by_name(hoja)
+    #Selecciono la ultima fila para asi no tener que guardar en un lugar especifico
+    ultima_fila = hoja_a_modificar.max_row
+
+    # Relleno la informacion necesaria
+    # Orden 
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 1).hyperlink = orden["link"] #Hay que ver como guardar el orden
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 1).value = orden["nombre"]
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 1).style = 'Hyperlink'
+    # User
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 2).value = user
+    # Order date 
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 3).value = order_date
+    # Invoice date
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 4).value = invoice_date
+    # Credit card
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 5).value = credit_card
+    # Numero de tarjeta 
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 6).value = number_card
+    # Total 
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 7).value = total
