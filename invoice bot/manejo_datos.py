@@ -2,6 +2,7 @@ from os import path, mkdir, remove
 from pathlib import Path
 from datetime import date, datetime
 from orden import Orden
+import time
 import openpyxl as op
 
 src_path = Path(__file__).parent
@@ -129,6 +130,13 @@ def guardar_archivo_excel(archivo, nombre_archivo):
         hoja.column_dimensions[op.utils.get_column_letter(columna)].width = 20
         numero_serial+=1
     
+    errores = archivo.get_sheet_by_name("Errores")
+
+    errores.cell(row = 1, column = 1).value = "FECHA"
+    errores.cell(row = 1, column = 2).value = "HORA"
+    errores.cell(row = 1, column = 3).value = "Nº ORDEN"
+    errores.cell(row = 1, column = 3).value = "MENSAJE"
+
     archivo.save(f'{excel_path}\\{date.today()}-{nombre_archivo}.xlsx')
 
 
@@ -170,6 +178,13 @@ def crear_archivo(nombre_archivo):
         serial.column_dimensions['A'].width = 30
         serial.column_dimensions['B'].width = 40
         serial.column_dimensions['C'].width = 40
+        # Creo nueva hoja
+        archivo.create_sheet('Errores')
+        errores = archivo.get_sheet_by_name("Errores")
+        errores.column_dimensions['A'].width = 20
+        errores.column_dimensions['B'].width = 20
+        errores.column_dimensions['C'].width = 20
+        errores.column_dimensions['D'].width = 35
         
         return archivo
 
@@ -218,3 +233,14 @@ def escribir_informacion(archivo_a_modificar, hoja, orden, user, order_date, inv
     hoja_a_modificar.cell(row = ultima_fila+1, column = 6).value = number_card
     # Total 
     hoja_a_modificar.cell(row = ultima_fila+1, column = 7).value = total
+
+def escribir_errores(archivo_a_modificar, hoja, error):
+    # Relleno las filas 
+    hoja_a_modificar = archivo_a_modificar.get_sheet_by_name(hoja)
+
+    ultima_fila = hoja_a_modificar.max_row
+    
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 1).value = date.today().strftime('%Y-%m-%d')
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 2).value = time.strftime('%H:%M:%S', time.localtime())
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 3).value = error["nombre"]
+    hoja_a_modificar.cell(row = ultima_fila+1, column = 4).value = "No se ha podido desargar este invoice"

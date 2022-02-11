@@ -49,7 +49,7 @@ def main():
     # Tiempo maximo de espera 
     tiempo_espera = 8
     # Variable de errores
-    errores = []
+    errores = 0
 
     # Elimina el anterior log
     md.eliminar_archivo_texto()
@@ -90,7 +90,8 @@ def main():
 
             #Si hay un error lo guarda y despues lo escribe en un txt 
             if not orden.estado:
-                md.escribir_texto(orden.orden)
+                md.escribir_errores(archivo_general, "Errores", orden.orden)
+                errores+=1
             else: 
                 # Secuencia de guardado de serial dentro del archivo anterior creado
                 md.escribir_informacion(archivo_general, "Informacion", orden.orden, orden.email, orden.informacion["order_date"],orden.informacion["invoice_date"], orden.informacion["credit_card"], orden.informacion["number_card"], orden.informacion["total"])
@@ -107,8 +108,8 @@ def main():
         # Finalizo la sesion de los excels usados
         archivo_general.close()
     
-    if md.existe_archivo_txt("log"):
-        print("Ha ocurrido errores al descargar ciertos invoices. Se detallan en el archivo 'log.txt'")
+    if errores > 0:
+        print("No se ha podido descargar ciertos invoices. Se detallan en la solapa 'Errores' del archivo excel")
 
     print("Finalizando BOT - INVOICES APPLE...")
 
