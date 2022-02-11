@@ -51,9 +51,6 @@ def main():
     # Variable de errores
     errores = 0
 
-    # Elimina el anterior log
-    md.eliminar_archivo_texto()
-
     print("Verificacion de las carpetas download, excel e invoice bot")
     md.verificacion_carpetas()
 

@@ -12,12 +12,6 @@ bot_path = src_path.parent / 'invoice bot'
 
 
 # Verifica si existe el archivo excel 
-def existe_archivo_txt(nombre_archivo):
-    if path.exists(f'{src_path.parent}\\{nombre_archivo}.txt'):
-        return True
-    else:
-        return False
-
 def existe_archivo_excel(nombre_archivo):
     if path.exists(f'{excel_path}\\{nombre_archivo}.xlsx'):
         return True
@@ -55,18 +49,6 @@ def crear_carpeta():
                 return nueva_ruta
             else: 
                 secuencia += 1
-    
-def escribir_texto(orden):
-    if path.exists(f'{src_path.parent}\\log.txt') == False:
-        with open(f'{src_path.parent}\\log.txt', 'w') as error:
-            error.write(f'*{datetime.today()} ---- Ha ocurrido un error con la orden {orden["nombre"]}' + "\n")
-    else: 
-        with open(f'{src_path.parent}\\log.txt', 'a') as error:
-            error.write(f'*{datetime.today()} ---- Ha ocurrido un error con la orden {orden["nombre"]}' + "\n")
-
-def eliminar_archivo_texto():
-    if path.exists(f'{src_path.parent}\\log.txt'):
-        remove(f'{src_path.parent}\\log.txt')
 
 def obtencion_columnas(archivo_excel):
     
